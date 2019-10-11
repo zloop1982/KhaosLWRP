@@ -21,6 +21,10 @@ namespace UnityEngine.Experimental.Rendering.LightweightPipeline
             public static GUIContent opaqueDownsamplingText = EditorGUIUtility.TrTextContent("Opaque Downsampling", "The downsampling method that is used for the opaque texture");
             public static GUIContent requireDepthNormalTextureText = EditorGUIUtility.TrTextContent("Depth Normals Texture", "If enabled the pipeline will generate view-space normals and camera's depth that can be bound in shaders as _CameraDepthNormalsTexture.");
 
+            public static GUIContent supportsOITText = EditorGUIUtility.TrTextContent("Order Independent Transparency", "If enabled the pipeline will draw the transparent objects (Render queue > 4500) unsortly.");
+            public static GUIContent momentsCountText = EditorGUIUtility.TrTextContent("Moments Count", "Larger number means more accuracy but more memory cost");
+            public static GUIContent momentsPrecisionText = EditorGUIUtility.TrTextContent("Moments Precision", "Larger number means more accuracy but more memory cost");
+
             // Quality
             public static GUIContent hdrText = EditorGUIUtility.TrTextContent("HDR", "Controls the global HDR settings.");
             public static GUIContent msaaText = EditorGUIUtility.TrTextContent("Anti Aliasing (MSAA)", "Controls the global anti aliasing settings.");
@@ -33,8 +37,8 @@ namespace UnityEngine.Experimental.Rendering.LightweightPipeline
             public static GUIContent supportsMainCharacterShadowsText = EditorGUIUtility.TrTextContent("Individual shadowmap for the main character", "If enabled an individual shadowmap will be drawn for the main character.");
             public static GUIContent mainCharacterShadowmapResolutionText = EditorGUIUtility.TrTextContent("Character Shadow Resolution", "Resolution of the main character shadowmap texture.");
             public static GUIContent supportsDeepShadowMapsText = EditorGUIUtility.TrTextContent("Deep shadow maps for hair", "if enabled deep shadow maps will be drawn for hair to improve shadow quality.");
-            public static GUIContent deepShadowMapsSizeText = EditorGUIUtility.TrTextContent("Deep shadow maps size", "Size of the deep shadow maps");
-            public static GUIContent deepShadowMapsDepthText = EditorGUIUtility.TrTextContent("Deep shadow maps depth", "Depth of the deep shadow maps");
+            public static GUIContent deepShadowMapsSizeText = EditorGUIUtility.TrTextContent("Deep shadow maps size", "Size of the deep shadow maps, something like the resolution of shadow maps");
+            public static GUIContent deepShadowMapsDepthText = EditorGUIUtility.TrTextContent("Deep shadow maps depth", "Larger depth means less flicker but more memory cost.");
             public static GUIContent deepShadowMapsBlurOffsetText = EditorGUIUtility.TrTextContent("Deep shadow maps blur offset", "The blur offset to filter the deep shadow LUT.");
             // Additional lights
             public static GUIContent addditionalLightsRenderingModeText = EditorGUIUtility.TrTextContent("Additional Lights", "Additional lights support.");
@@ -78,6 +82,10 @@ namespace UnityEngine.Experimental.Rendering.LightweightPipeline
         SerializedProperty m_RequireOpaqueTextureProp;
         SerializedProperty m_OpaqueDownsamplingProp;
         SerializedProperty m_RequireDepthNormalsTextureProp;
+
+        SerializedProperty _SupportsOITProp;
+        SerializedProperty _MomentsCountProp;
+        SerializedProperty _MomentsPrecisionProp;
 
         SerializedProperty m_HDR;
         SerializedProperty m_MSAA;
@@ -136,6 +144,10 @@ namespace UnityEngine.Experimental.Rendering.LightweightPipeline
             m_OpaqueDownsamplingProp = serializedObject.FindProperty("m_OpaqueDownsampling");
             m_RequireDepthNormalsTextureProp = serializedObject.FindProperty("m_RequireDepthNormalsTexture");
 
+            _SupportsOITProp = serializedObject.FindProperty("_supportsOIT");
+            _MomentsCountProp = serializedObject.FindProperty("_momentsCount");
+            _MomentsPrecisionProp = serializedObject.FindProperty("_momentsPrecision");
+
             m_HDR = serializedObject.FindProperty("m_SupportsHDR");
             m_MSAA = serializedObject.FindProperty("m_MSAA");
             m_RenderScale = serializedObject.FindProperty("m_RenderScale");
@@ -184,6 +196,13 @@ namespace UnityEngine.Experimental.Rendering.LightweightPipeline
                 EditorGUI.EndDisabledGroup();
                 EditorGUI.indentLevel--;
                 EditorGUILayout.PropertyField(m_RequireDepthNormalsTextureProp, Styles.requireDepthNormalTextureText);
+                EditorGUILayout.PropertyField(_SupportsOITProp, Styles.supportsOITText);
+                EditorGUI.indentLevel++;
+                EditorGUI.BeginDisabledGroup(!_SupportsOITProp.boolValue);
+                EditorGUILayout.PropertyField(_MomentsCountProp, Styles.momentsCountText);
+                EditorGUILayout.PropertyField(_MomentsPrecisionProp, Styles.momentsPrecisionText);
+                EditorGUI.EndDisabledGroup();
+                EditorGUI.indentLevel--;
                 EditorGUI.indentLevel--;
                 EditorGUILayout.Space();
                 EditorGUILayout.Space();
